@@ -1,3 +1,6 @@
+import pandas as pd
+import streamlit as st
+
 def calculate_profit_from_csv(data):
     try:
         # Clean 'Profit' column (remove spaces and commas)
