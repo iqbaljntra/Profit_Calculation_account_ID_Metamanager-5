@@ -68,4 +68,4 @@ if uploaded_file is not None:
     except Exception as e:
         st.error(f"Error processing file: {e}")
 else:
-    st.info('Please upload a CSV or Excel file')
+    st.info('Please upload a CSV file')
