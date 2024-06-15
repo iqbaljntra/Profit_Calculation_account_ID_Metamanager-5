@@ -1,24 +1,16 @@
-import os
 import pandas as pd
 import streamlit as st
 
-UPLOAD_FOLDER = 'uploads'
-
-# Ensure the upload folder exists
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
-
 def calculate_profit_from_csv(data):
+    # Clean 'Profit' column (remove spaces and commas)
+    data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
+    
     # Extract deposits and withdrawals based on 'Comment' column
     deposits = data[(data['Type'] == 'balance') & (data['Comment'].str.contains('Deposit', na=False))]
     withdrawals = data[(data['Type'] == 'balance') & (data['Comment'].str.contains('Withdrawal', na=False))]
 
     if deposits.empty or withdrawals.empty:
         return {'error': 'No deposits or withdrawals found in the data'}
-
-    # Clean and convert the 'Profit' column
-    deposits['Profit'] = deposits['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
-    withdrawals['Profit'] = withdrawals['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
 
     # Summing up the 'Profit' column for deposits and withdrawals
     jumlah_awal_deposit = deposits['Profit'].sum()
@@ -45,7 +37,7 @@ uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
 if uploaded_file is not None:
     try:
-        data = pd.read_csv(uploaded_file, delimiter=',')
+        data = pd.read_csv(uploaded_file, delimiter='\t')
         data.columns = [
             'Time', 'Deal', 'Symbol', 'Type', 'Direction', 'Volume', 'Price', 'Order',
             'Commission', 'Fee', 'Swap', 'Profit', 'Balance', 'Comment'
