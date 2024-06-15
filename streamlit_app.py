@@ -20,7 +20,10 @@ def calculate_profit_from_csv(data):
     profit = total_withdraw - jumlah_awal_deposit
 
     # Calculate the profit percentage
-    profit_percentage = (profit / jumlah_awal_deposit) * 100
+    if jumlah_awal_deposit != 0:
+        profit_percentage = (profit / jumlah_awal_deposit) * 100
+    else:
+        profit_percentage = 0.0
 
     return {
         'jumlah_awal_deposit': jumlah_awal_deposit,
