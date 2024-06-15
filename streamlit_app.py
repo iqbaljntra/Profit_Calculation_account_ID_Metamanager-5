@@ -16,9 +16,13 @@ def calculate_profit_from_csv(data):
     if deposits.empty or withdrawals.empty:
         return {'error': 'No deposits or withdrawals found in the data'}
 
+    # Clean and convert the 'Profit' column
+    deposits['Profit'] = deposits['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
+    withdrawals['Profit'] = withdrawals['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
+
     # Summing up the 'Profit' column for deposits and withdrawals
-    jumlah_awal_deposit = deposits['Profit'].str.replace(',', '').astype(float).sum()
-    total_withdraw = withdrawals['Profit'].str.replace(',', '').astype(float).sum()
+    jumlah_awal_deposit = deposits['Profit'].sum()
+    total_withdraw = withdrawals['Profit'].sum()
 
     # Calculate the profit
     profit = total_withdraw - jumlah_awal_deposit
