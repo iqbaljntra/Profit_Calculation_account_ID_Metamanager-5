@@ -37,20 +37,20 @@ def calculate_profit_from_csv(data):
         return {'error': str(e)}
 
 # Streamlit app
-st.title('Profit Calculation from CSV')
-st.write("Upload your CSV file to calculate the profit")
+st.title('Profit Calculation from CSV/Excel')
+st.write("Upload your CSV or Excel file to calculate the profit")
 
-uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx"])
 
 if uploaded_file is not None:
     try:
-        # Read the CSV file
-        df = pd.read_csv(uploaded_file, header=None)
-        
-        # Use the first row as column headers
-        df.columns = ['Time', 'Deal', 'Symbol', 'Type', 'Direction', 'Volume', 'Price', 'Order', 
-                      'Commission', 'Fee', 'Swap', 'Profit', 'Balance', 'Comment']
-        df = df[1:]  # Remove the first row (used as header) from data
+        if uploaded_file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':  # Check if file is Excel
+            df = pd.read_excel(uploaded_file, engine='openpyxl')
+        else:  # Assume it's a CSV file
+            df = pd.read_csv(uploaded_file, header=None)
+            df.columns = ['Time', 'Deal', 'Symbol', 'Type', 'Direction', 'Volume', 'Price', 'Order', 
+                          'Commission', 'Fee', 'Swap', 'Profit', 'Balance', 'Comment']
+            df = df[1:]  # Remove the first row (used as header) from data
         
         st.write("Original data:")
         st.write(df)  # Print original data for debugging
@@ -68,4 +68,4 @@ if uploaded_file is not None:
     except Exception as e:
         st.error(f"Error processing file: {e}")
 else:
-    st.info('Please upload a CSV file')
+    st.info('Please upload a CSV or Excel file')
