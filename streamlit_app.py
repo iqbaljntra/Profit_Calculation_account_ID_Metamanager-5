@@ -3,31 +3,32 @@ import streamlit as st
 
 def calculate_profit_from_csv(data):
     try:
-        # Clean 'Profit' column (remove spaces and commas, convert to float)
-        data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
+        # Clean 'Profit' column (remove spaces and commas)
+        data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '')
+        data['Profit'] = pd.to_numeric(data['Profit'], errors='coerce')  # Convert to numeric, coerce errors to NaN
         
         # Extract deposits and withdrawals based on 'Comment' column
-        deposits = data[(data['Type'] == 'balance') & (data['Comment'].str.contains('Deposit', na=False))]
-        withdrawals = data[(data['Type'] == 'balance') & (data['Comment'].str.contains('Withdrawal', na=False))]
+        deposits = data[(data['Type'].str.lower() == 'balance') & (data['Comment'].str.contains('deposit', case=False, na=False))]
+        withdrawals = data[(data['Type'].str.lower() == 'balance') & (data['Comment'].str.contains('withdrawal', case=False, na=False))]
 
         if deposits.empty or withdrawals.empty:
             return {'error': 'No deposits or withdrawals found in the data'}
 
-        # Summing up the 'Profit' column for deposits and withdrawals
-        initial_balance = deposits['Profit'].iloc[0] if not deposits.empty else 0.0
+        # Calculate initial deposit and total withdrawals
+        initial_deposit = deposits['Profit'].sum()
         total_withdrawal = withdrawals['Profit'].sum()
 
-        # Calculate the profit
-        profit = total_withdrawal - initial_balance
+        # Calculate profit
+        profit = total_withdrawal - initial_deposit
 
-        # Calculate the profit percentage
-        if initial_balance != 0:
-            profit_percentage = (profit / initial_balance) * 100
+        # Calculate profit percentage
+        if initial_deposit != 0:
+            profit_percentage = (profit / initial_deposit) * 100
         else:
             profit_percentage = 0.0
 
         return {
-            'initial_balance': initial_balance,
+            'initial_deposit': initial_deposit,
             'total_withdrawal': total_withdrawal,
             'profit': profit,
             'profit_percentage': profit_percentage
@@ -43,12 +44,10 @@ uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
 if uploaded_file is not None:
     try:
-        data = pd.read_csv(uploaded_file, delimiter=',')
+        data = pd.read_csv(uploaded_file)
         
         # Assuming the first row of the CSV file contains the actual column names
-        data.columns = data.columns.str.strip()  # Strip any leading/trailing spaces from column names
-        data.columns = data.columns.str.replace(' ', '_')  # Replace spaces in column names with underscores
-        data.columns = data.columns.str.lower()  # Convert column names to lowercase
+        data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')  # Clean column headers
         
         result = calculate_profit_from_csv(data)
         
@@ -56,7 +55,7 @@ if uploaded_file is not None:
             st.error(result['error'])
         else:
             st.success('Calculation successful')
-            st.write(f"Initial Balance: {result['initial_balance']}")
+            st.write(f"Initial Deposit: {result['initial_deposit']}")
             st.write(f"Total Withdrawal: {result['total_withdrawal']}")
             st.write(f"Profit: {result['profit']}")
             st.write(f"Profit Percentage: {result['profit_percentage']}%")
