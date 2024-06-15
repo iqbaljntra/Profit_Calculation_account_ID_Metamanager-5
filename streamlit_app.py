@@ -8,8 +8,8 @@ def calculate_profit_from_csv(data):
         data['Profit'] = pd.to_numeric(data['Profit'], errors='coerce')  # Convert to numeric, coerce errors to NaN
         
         # Extract deposits and withdrawals based on 'Comment' column
-        deposits = data[(data['Type'].str.lower() == 'balance') & (data['Comment'].str.contains('deposit', case=False, na=False))]
-        withdrawals = data[(data['Type'].str.lower() == 'balance') & (data['Comment'].str.contains('withdrawal', case=False, na=False))]
+        deposits = data[data['Comment'].str.contains('deposit', case=False, na=False)]
+        withdrawals = data[data['Comment'].str.contains('withdrawal', case=False, na=False)]
 
         if deposits.empty or withdrawals.empty:
             return {'error': 'No deposits or withdrawals found in the data'}
@@ -45,10 +45,11 @@ uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 if uploaded_file is not None:
     try:
         # Read the CSV file
-        df = pd.read_csv(uploaded_file)
+        df = pd.read_csv(uploaded_file, header=None)
         
         # Use the first row as column headers
-        df.columns = df.iloc[0]
+        df.columns = ['Time', 'Deal', 'Symbol', 'Type', 'Direction', 'Volume', 'Price', 'Order', 
+                      'Commission', 'Fee', 'Swap', 'Profit', 'Balance', 'Comment']
         df = df[1:]  # Remove the first row (used as header) from data
         
         st.write("Original data:")
