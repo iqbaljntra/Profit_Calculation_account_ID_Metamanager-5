@@ -70,7 +70,6 @@ if uploaded_file is not None:
             st.error(result['error'])
         else:
             st.success('Calculation successful')
-            st.write(f"Account ID: {result['account_id']}")
             st.write(f"Initial Deposit: {result['initial_deposit']}")
             st.write(f"Total Withdrawal: {result['total_withdrawal']}")
             st.write(f"Profit: {result['profit']}")
