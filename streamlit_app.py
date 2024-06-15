@@ -35,17 +35,8 @@ def calculate_profit_from_csv(data):
             profit_percentage = (profit / abs(initial_deposit)) * 100
         else:
             profit_percentage = 0.0
-
-        # Extract account ID from comment
-        account_id = None
-        for comment in data['Comment']:
-            extracted_id = extract_account_id(comment)
-            if extracted_id:
-                account_id = extracted_id
-                break
-
+            
         return {
-            'account_id': account_id,
             'initial_deposit': initial_deposit,
             'total_withdrawal': total_withdrawal,
             'profit': profit,
