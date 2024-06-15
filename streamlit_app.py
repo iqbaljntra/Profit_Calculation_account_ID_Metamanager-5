@@ -5,7 +5,7 @@ def calculate_profit_from_csv(data):
     try:
         # Clean 'Profit' column (remove spaces and commas)
         data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
-
+        
         # Extract deposits and withdrawals based on 'Comment' column
         deposits = data[(data['Type'] == 'balance') & (data['Comment'].str.contains('Deposit', na=False))]
         withdrawals = data[(data['Type'] == 'balance') & (data['Comment'].str.contains('Withdrawal', na=False))]
@@ -46,8 +46,9 @@ if uploaded_file is not None:
         data = pd.read_csv(uploaded_file, delimiter='\t')
         
         # Assuming the first row of the CSV file contains the actual column names
-        data.columns = data.iloc[0]
-        data = data[1:]  # Skip the first row which contains the column headers
+        data.columns = data.columns.str.strip()  # Strip any leading/trailing spaces from column names
+        data.columns = data.columns.str.replace(' ', '_')  # Replace spaces in column names with underscores
+        data.columns = data.columns.str.lower()  # Convert column names to lowercase
         
         # Ensure 'Profit' column is numeric and clean it
         data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
