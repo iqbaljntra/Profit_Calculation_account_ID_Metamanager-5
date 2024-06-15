@@ -26,7 +26,7 @@ def calculate_profit_from_csv(data):
             profit_percentage = (profit / abs(initial_deposit)) * 100
         else:
             profit_percentage = 0.0
-
+            
         return {
             'initial_deposit': initial_deposit,
             'total_withdrawal': total_withdrawal,
