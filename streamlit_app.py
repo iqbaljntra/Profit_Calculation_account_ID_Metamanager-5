@@ -3,7 +3,7 @@ import streamlit as st
 
 def calculate_profit_from_csv(data):
     try:
-        # Clean 'Profit' column (remove spaces and commas)
+        # Clean 'Profit' column (remove spaces and commas, convert to float)
         data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
         
         # Extract deposits and withdrawals based on 'Comment' column
@@ -14,21 +14,21 @@ def calculate_profit_from_csv(data):
             return {'error': 'No deposits or withdrawals found in the data'}
 
         # Summing up the 'Profit' column for deposits and withdrawals
-        jumlah_awal_deposit = deposits['Profit'].sum()
-        total_withdraw = withdrawals['Profit'].sum()
+        initial_balance = deposits['Profit'].iloc[0] if not deposits.empty else 0.0
+        total_withdrawal = withdrawals['Profit'].sum()
 
         # Calculate the profit
-        profit = total_withdraw - jumlah_awal_deposit
+        profit = total_withdrawal - initial_balance
 
         # Calculate the profit percentage
-        if jumlah_awal_deposit != 0:
-            profit_percentage = (profit / jumlah_awal_deposit) * 100
+        if initial_balance != 0:
+            profit_percentage = (profit / initial_balance) * 100
         else:
             profit_percentage = 0.0
 
         return {
-            'jumlah_awal_deposit': jumlah_awal_deposit,
-            'total_withdraw': total_withdraw,
+            'initial_balance': initial_balance,
+            'total_withdrawal': total_withdrawal,
             'profit': profit,
             'profit_percentage': profit_percentage
         }
@@ -43,15 +43,12 @@ uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
 if uploaded_file is not None:
     try:
-        data = pd.read_csv(uploaded_file, delimiter='\t')
+        data = pd.read_csv(uploaded_file, delimiter=',')
         
         # Assuming the first row of the CSV file contains the actual column names
         data.columns = data.columns.str.strip()  # Strip any leading/trailing spaces from column names
         data.columns = data.columns.str.replace(' ', '_')  # Replace spaces in column names with underscores
         data.columns = data.columns.str.lower()  # Convert column names to lowercase
-        
-        # Ensure 'Profit' column is numeric and clean it
-        data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
         
         result = calculate_profit_from_csv(data)
         
@@ -59,8 +56,8 @@ if uploaded_file is not None:
             st.error(result['error'])
         else:
             st.success('Calculation successful')
-            st.write(f"Initial Deposit: {result['jumlah_awal_deposit']}")
-            st.write(f"Total Withdrawals: {result['total_withdraw']}")
+            st.write(f"Initial Balance: {result['initial_balance']}")
+            st.write(f"Total Withdrawal: {result['total_withdrawal']}")
             st.write(f"Profit: {result['profit']}")
             st.write(f"Profit Percentage: {result['profit_percentage']}%")
     except Exception as e:
