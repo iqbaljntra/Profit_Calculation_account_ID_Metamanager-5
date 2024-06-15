@@ -49,6 +49,9 @@ if uploaded_file is not None:
         # Assuming the first row of the CSV file contains the actual column names
         data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')  # Clean column headers
         
+        st.write("Original data:")
+        st.write(data)  # Print original data for debugging
+        
         result = calculate_profit_from_csv(data)
         
         if 'error' in result:
