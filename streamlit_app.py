@@ -4,7 +4,7 @@ import streamlit as st
 def calculate_profit_from_csv(data):
     try:
         # Clean 'Profit' column (remove spaces and commas)
-        data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
+        data['Profit'] = data['Profit'].astype(str).str.replace(' ', '').str.replace(',', '').astype(float)
         
         # Extract deposits and withdrawals based on 'Comment' column
         deposits = data[(data['Type'] == 'balance') & (data['Comment'].str.contains('Deposit', na=False))]
@@ -47,9 +47,7 @@ if uploaded_file is not None:
     try:
         data = pd.read_csv(uploaded_file)
         
-        # Ensure 'Profit' column is numeric and clean it
-        data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
-        
+        # Ensure 'Profit' column is cleaned and converted to float
         result = calculate_profit_from_csv(data)
         
         if 'error' in result:
