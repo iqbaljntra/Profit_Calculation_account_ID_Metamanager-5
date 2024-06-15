@@ -41,7 +41,7 @@ st.title('Profit Calculation account ID Metamanager 5')
 st.write("Upload history user CSV file only to calculate the profit")
 st.write("CHANGE YOUR FILE TO CSV FIRST")
 
-uploaded_file = st.file_uploader("Choose a file", type=["csv", "xlsx"])
+uploaded_file = st.file_uploader("Choose a file", type=["csv"])
 
 if uploaded_file is not None:
     try:
