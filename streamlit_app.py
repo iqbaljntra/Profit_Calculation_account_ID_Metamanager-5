@@ -1,5 +1,14 @@
 import pandas as pd
 import streamlit as st
+import re
+
+def extract_account_id(comment):
+    # Using regular expression to find account ID pattern
+    match = re.search(r'\b\d+\b', comment)
+    if match:
+        return match.group()
+    else:
+        return None
 
 def calculate_profit_from_csv(data):
     try:
@@ -27,7 +36,16 @@ def calculate_profit_from_csv(data):
         else:
             profit_percentage = 0.0
 
+        # Extract account ID from comment
+        account_id = None
+        for comment in data['Comment']:
+            extracted_id = extract_account_id(comment)
+            if extracted_id:
+                account_id = extracted_id
+                break
+
         return {
+            'account_id': account_id,
             'initial_deposit': initial_deposit,
             'total_withdrawal': total_withdrawal,
             'profit': profit,
@@ -37,20 +55,20 @@ def calculate_profit_from_csv(data):
         return {'error': str(e)}
 
 # Streamlit app
-st.title('Profit Calculation account ID Metamanager 5')
-st.write("Upload history user CSV file only to calculate the profit")
+st.title('Profit Calculation from CSV')
+st.write("Upload your CSV file to calculate the profit")
 
-uploaded_file = st.file_uploader("Choose a file", type=["csv"])
+uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
 if uploaded_file is not None:
     try:
-        if uploaded_file.type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':  # Check if file is Excel
-            df = pd.read_excel(uploaded_file, engine='openpyxl')
-        else:  # Assume it's a CSV file
-            df = pd.read_csv(uploaded_file, header=None)
-            df.columns = ['Time', 'Deal', 'Symbol', 'Type', 'Direction', 'Volume', 'Price', 'Order', 
-                          'Commission', 'Fee', 'Swap', 'Profit', 'Balance', 'Comment']
-            df = df[1:]  # Remove the first row (used as header) from data
+        # Read the CSV file
+        df = pd.read_csv(uploaded_file, header=None)
+        
+        # Use the first row as column headers
+        df.columns = ['Time', 'Deal', 'Symbol', 'Type', 'Direction', 'Volume', 'Price', 'Order', 
+                      'Commission', 'Fee', 'Swap', 'Profit', 'Balance', 'Comment']
+        df = df[1:]  # Remove the first row (used as header) from data
         
         st.write("Original data:")
         st.write(df)  # Print original data for debugging
@@ -61,6 +79,7 @@ if uploaded_file is not None:
             st.error(result['error'])
         else:
             st.success('Calculation successful')
+            st.write(f"Account ID: {result['account_id']}")
             st.write(f"Initial Deposit: {result['initial_deposit']}")
             st.write(f"Total Withdrawal: {result['total_withdrawal']}")
             st.write(f"Profit: {result['profit']}")
