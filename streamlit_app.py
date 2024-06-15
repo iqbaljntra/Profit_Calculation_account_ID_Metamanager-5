@@ -1,6 +1,3 @@
-import pandas as pd
-import streamlit as st
-
 def calculate_profit_from_csv(data):
     try:
         # Clean 'Profit' column (remove spaces and commas)
@@ -44,15 +41,17 @@ uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
 if uploaded_file is not None:
     try:
-        data = pd.read_csv(uploaded_file)
+        # Read the CSV file
+        df = pd.read_csv(uploaded_file)
         
-        # Assuming the first row of the CSV file contains the actual column names
-        data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_')  # Clean column headers
+        # Use the first row as column headers
+        df.columns = df.iloc[0]
+        df = df[1:]  # Remove the first row (used as header) from data
         
         st.write("Original data:")
-        st.write(data)  # Print original data for debugging
+        st.write(df)  # Print original data for debugging
         
-        result = calculate_profit_from_csv(data)
+        result = calculate_profit_from_csv(df)
         
         if 'error' in result:
             st.error(result['error'])
