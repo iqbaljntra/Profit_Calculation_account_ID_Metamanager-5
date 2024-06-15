@@ -19,7 +19,7 @@ def calculate_profit_from_csv(data):
         total_withdrawal = withdrawals['Profit'].sum()
 
         # Calculate profit
-        profit = total_withdrawal - initial_deposit
+        profit = initial_deposit - total_withdrawal
 
         # Calculate profit percentage
         if initial_deposit != 0:
