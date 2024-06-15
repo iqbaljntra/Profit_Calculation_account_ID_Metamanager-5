@@ -38,11 +38,14 @@ uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 if uploaded_file is not None:
     try:
         data = pd.read_csv(uploaded_file, delimiter='\t')
-        data.columns = [
-            'Time', 'Deal', 'Symbol', 'Type', 'Direction', 'Volume', 'Price', 'Order',
-            'Commission', 'Fee', 'Swap', 'Profit', 'Balance', 'Comment'
-        ]
-
+        
+        # Assuming the first row of the CSV file contains the actual column names
+        data.columns = data.iloc[0]
+        data = data[1:]  # Skip the first row which contains the column headers
+        
+        # Ensure 'Profit' column is numeric and clean it
+        data['Profit'] = data['Profit'].str.replace(' ', '').str.replace(',', '').astype(float)
+        
         result = calculate_profit_from_csv(data)
         
         if 'error' in result:
